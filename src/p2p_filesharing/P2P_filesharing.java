@@ -43,6 +43,7 @@ public class P2P_filesharing {
               System.out.println("j : join ");
               System.out.println("l : leave distributed system");
               System.out.println("s : serch file");
+              System.out.println("p : print neighbours");
               String in = scanner.nextLine();
 
               if(in.equals("r")){
@@ -62,7 +63,11 @@ public class P2P_filesharing {
               
               }else if(in.equals("s")){
               
-              }else{
+              }else if(in.equals("p")){
+              //print neighbours
+              node.print_neighbours();
+              }
+              else{
               
               
               }

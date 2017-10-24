@@ -20,6 +20,11 @@ public class Neighbour {
         this.port = port;
         this.name = name;
     }
+    public Neighbour(String ip, int port) {
+        this.ip = ip;
+        this.port = port;
+        this.name = "";
+    }
 
     
     public void setIp(String ip) {

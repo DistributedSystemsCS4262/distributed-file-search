@@ -47,7 +47,7 @@ public class Node {
             packet.setAddress(InetAddress.getByName(ip));
             packet.setPort(port);
 
-            datagramSocket.send(packet);
+            getDatagramSocket().send(packet);
         } catch (UnknownHostException ex) {
             
         } catch (IOException ex) {
@@ -57,14 +57,19 @@ public class Node {
     public void register(){
         
    
-    String register_msg="REG " + ip + " " + port + " " + name;
+    String register_msg="REG " + getIp() + " " + getPort() + " " + getName();
     register_msg=this.getlength(register_msg)+ " " + register_msg;
      System.out.println(register_msg);
     this.sendPacket(register_msg, "127.0.0.1", 55555);
    
     
     }
-    
+     void print_neighbours() {
+        // print neighbours
+         
+         
+         
+    }
     
     public String getlength(String msg){
     
@@ -91,6 +96,78 @@ public class Node {
     
     return length;
     }
+
+    /**
+     * @return the ip
+     */
+    public String getIp() {
+        return ip;
+    }
+
+    /**
+     * @param ip the ip to set
+     */
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    /**
+     * @return the port
+     */
+    public int getPort() {
+        return port;
+    }
+
+    /**
+     * @param port the port to set
+     */
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the datagramSocket
+     */
+    public DatagramSocket getDatagramSocket() {
+        return datagramSocket;
+    }
+
+    /**
+     * @param datagramSocket the datagramSocket to set
+     */
+    public void setDatagramSocket(DatagramSocket datagramSocket) {
+        this.datagramSocket = datagramSocket;
+    }
+
+    /**
+     * @return the neighbours
+     */
+    public ArrayList<Neighbour> getNeighbours() {
+        return neighbours;
+    }
+
+    /**
+     * @param neighbours the neighbours to set
+     */
+    public void setNeighbours(ArrayList<Neighbour> neighbours) {
+        this.neighbours = neighbours;
+    }
+
+   
     
     
     
