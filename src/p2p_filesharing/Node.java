@@ -11,9 +11,12 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +35,7 @@ public class Node {
 
     private Set<Neighbour> neighbours;
     private HashSet<String> requests;
-    private HashSet<String> fileList;
+    private ArrayList<String> fileList= new ArrayList<>(Arrays.asList("Adventures of Tintin","Jack and Jill","Glee","The Vampire Diarie","King Arthur","Windows XP","Harry Potter","Kung Fu Panda","Lady Gaga","Twilight","Windows 8","Mission Impossible","Turn Up The Music","Super Mario","American Pickers","Microsoft Office 2010","Happy Feet","Modern Family","American Idol","Hacking for Dummies"));
     private HashMap<String, ArrayList<String>> fileDictionary;
 
     public Node(String ip, int port, String name, DatagramSocket datagramSocket) {
@@ -42,6 +45,7 @@ public class Node {
         this.neighbours = ConcurrentHashMap.newKeySet();
         this.requests = new HashSet<String>();
         this.datagramSocket = datagramSocket;
+        initFilelist();
     }
 
     //implement register leave 
@@ -67,7 +71,7 @@ public class Node {
         String register_msg = "REG " + getIp() + " " + getPort() + " " + getName();
         register_msg = this.getlength(register_msg) + " " + register_msg;
         System.out.println(register_msg);
-        this.sendPacket(register_msg, "127.0.0.1", 55555);
+        this.sendPacket(register_msg, "10.10.6.215", 55555);
 
     }
 
@@ -76,7 +80,7 @@ public class Node {
         String register_msg = "UNREG " + getIp() + " " + getPort() + " " + getName();
         register_msg = this.getlength(register_msg) + " " + register_msg;
         System.out.println(register_msg);
-        this.sendPacket(register_msg, "127.0.0.1", 55555);
+        this.sendPacket(register_msg, "10.10.6.215", 55555);
 
     }
 
@@ -227,11 +231,36 @@ public class Node {
         this.fileList.add(fileName);
     }
     
-    public ArrayList<String> findFiles(String fileName){
-        ArrayList<String> result=new ArrayList<String>();
-        
-        return result;
+    public void initFilelist(){
+        ArrayList<String> filelistNode = new ArrayList<>();
+        Random rn = new Random();
+        for(int i=0; i<((fileList.size()/2)+1);i++){
+            int ind = rn.nextInt(this.fileList.size());
+            if(!filelistNode.contains(this.fileList.get(ind))){
+                filelistNode.add(this.fileList.get(ind));
+            }
+        }
+        this.fileDictionary=generateFileDictionry(filelistNode);
     }
+    
+    public static HashMap<String, ArrayList<String>> generateFileDictionry(ArrayList<String> fileList) {
+        HashMap<String, ArrayList<String>> results = new HashMap<>();
+        for (String fileName : fileList) {
+            StringTokenizer stringTokenizer = new StringTokenizer(fileName);
+            while (stringTokenizer.hasMoreTokens()) {
+                String word = stringTokenizer.nextToken();
+                if (results.containsKey(word)) {
+                    results.get(word).add(fileName);
+                } else {
+                    results.put(word, new ArrayList<>(Arrays.asList((fileName))));
+                }
+            }
+        }
+        return results;
+    }
+    
+    
+
 }
 /*
  * To change this license header, choose License Headers in Project Properties.

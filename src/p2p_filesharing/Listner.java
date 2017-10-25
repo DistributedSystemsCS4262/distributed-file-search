@@ -58,14 +58,16 @@ public class Listner implements Runnable {
             case "DISC":
                 ser.searchDiscMsgRecieved(data);
                 break;
-            case "DISCOK":
-                ser.searchDiscMsgRecieved(data);
+            case "DISCACK":
+                
+                ser.search(data);
                 break;
             case "SER":
                 ser.searchMsgRecieved(data);
                 //this.search_ok();
                 break;
             case "SEROK":
+                System.out.println(data);
                 this.search_ok(token);
                 break;
             case "ERROR":

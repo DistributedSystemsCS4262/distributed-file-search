@@ -29,18 +29,24 @@ public class SearchFile {
     }
     
     public void searchDiscMsgRecieved(String data){
-        StringTokenizer token = new StringTokenizer(data);
+        
+        StringTokenizer token2 = new StringTokenizer(data,"\"");
+        StringTokenizer token = new StringTokenizer(token2.nextToken());
         String length = token.nextToken();
         String command = token.nextToken();
         Set<Neighbour> neighbourList=node.getNeighbours();
+        String filename = token2.nextToken();  
+        token = new StringTokenizer(token2.nextToken());
         String ip = token.nextToken();
         int port = Integer.parseInt(token.nextToken());
         String timestamp = token.nextToken();
         if(!this.node.searchRequestAvailable(data)){
             this.node.addRequestAvailable(data);
-            discAckMsg(timestamp,ip,port);
+            discAckMsg(timestamp,ip,port,filename);
             for(Neighbour neighbour:neighbourList){
-                node.sendPacket(data, neighbour.getIp(), neighbour.getPort());
+                if(!(neighbour.getIp()==ip && neighbour.getPort()==port)){
+                    node.sendPacket(data, neighbour.getIp(), neighbour.getPort());
+                }
             }
         }        
     }
@@ -58,32 +64,64 @@ public class SearchFile {
         HashMap<String, ArrayList<String>> fileDictionary = this.node.getFileDictionary();
         String word = token.nextToken();
         ArrayList<String> result = fileDictionary.get(word);
-        while(token.hasMoreTokens()){
-            word = token.nextToken();
-            result.retainAll(fileDictionary.get(word));
-        }
-        ArrayList<String> filelist = new ArrayList<>();
-        String searchString = data.replace(" ", "#")+"#";
-        for(String file:result){
-            String fileModified = file.replace(" ", "#")+"#";
-            if(fileModified.contains(searchString)){
-                filelist.add(file);
+        if(result!=null){
+            while(token.hasMoreTokens()){
+                word = token.nextToken();
+                result.retainAll(fileDictionary.get(word));
             }
         }
-        String searchOk ="SEROK "+filelist.size()+" "+node.getIp()+" "+node.getPort()+" 1";
-        for(String file:filelist){
-            searchOk=searchOk+ " " + file;
+        if(result!=null&&!result.isEmpty()){
+            ArrayList<String> filelist = new ArrayList<>();
+            String searchString = filename.replace(" ", "#")+"#";
+            for(String file:result){
+                String fileModified = file.replace(" ", "#")+"#";
+                if(fileModified.contains(searchString)){
+                    filelist.add(file);
+                }
+            }
+            String searchOk ="SEROK "+filelist.size()+" "+node.getIp()+" "+node.getPort()+" 1";
+            for(String file:filelist){
+                searchOk=searchOk+ " " + file;
+            }
+            String lengthOfMsg = node.getlength(searchOk);
+            searchOk = lengthOfMsg + " " + searchOk;
+            node.sendPacket(searchOk, ip, port);
+        }else{
+            String searchOk ="SEROK 0 "+node.getIp()+" "+node.getPort()+" 1";
+            String lengthOfMsg = node.getlength(searchOk);
+            searchOk = lengthOfMsg + " " + searchOk;
+            node.sendPacket(searchOk, ip, port);
         }
-        String lengthOfMsg = node.getlength(searchOk);
-        searchOk = lengthOfMsg + " " + searchOk;
-        node.sendPacket(searchOk, ip, port);
+        
     }
     
-    public void discAckMsg(String timestamp,String ip,int port){
-        String discAck = "DISCACK " + node.getIp() +" "+ node.getPort()+" "+timestamp;
+    public void search(String data){
+        StringTokenizer token2 = new StringTokenizer(data,"\"");
+        StringTokenizer token = new StringTokenizer(token2.nextToken());
+        String length = token.nextToken();
+        String command = token.nextToken();
+        String filename = token2.nextToken();  
+        token = new StringTokenizer(token2.nextToken());
+        String ip = token.nextToken();
+        int port = Integer.parseInt(token.nextToken());
+        int hops = 0;
+        String search = "SER "+node.getIp()+" "+node.getPort()+" \""+filename+"\" "+hops;
+        String lengthOfMsg = node.getlength(search);
+        search = lengthOfMsg + " " + search;
+        node.sendPacket(search, ip, port);
+    }
+    
+    public void discAckMsg(String timestamp,String ip,int port,String filename){
+        String discAck = "DISCACK \"" +filename+"\" "+ node.getIp() +" "+ node.getPort()+" "+timestamp;
         String length = this.node.getlength(discAck);
         discAck = length + " " + discAck;
         node.sendPacket(discAck, ip, port);
     }
     
+    public void initiateSearchMsg(String timestamp,String ip,int port,String filename){
+        String discAck = "DISC \"" +filename+"\" "+ node.getIp() +" "+ node.getPort()+" "+timestamp;
+        String length = this.node.getlength(discAck);
+        discAck = length + " " + discAck;
+        node.sendPacket(discAck, ip, port);
+    }
 }
