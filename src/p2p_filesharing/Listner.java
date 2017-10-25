@@ -32,7 +32,7 @@ public class Listner implements Runnable {
         StringTokenizer token = new StringTokenizer(data);
         String lenght = token.nextToken();
         String command = token.nextToken();
-        
+        SearchFile ser = new SearchFile(this.node,this.socket);
         switch (command) {
             case "REGOK":
                 this.register_ok(token);
@@ -47,7 +47,16 @@ public class Listner implements Runnable {
             case "LEAVEOK":
                 this.leave_ok();
                 break;
-            
+            case "DISC":
+                ser.searchDiscMsgRecieved(data);
+                break;
+            case "DISCOK":
+                ser.searchDiscMsgRecieved(data);
+                break;
+            case "SER":
+                ser.searchMsgRecieved(data);
+                this.search_ok();
+                break;
             case "SEROK":
                 this.search_ok();
                 break;

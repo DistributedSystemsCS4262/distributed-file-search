@@ -11,6 +11,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,13 +29,16 @@ public class Node {
     private DatagramSocket datagramSocket;
     
     private ArrayList<Neighbour> neighbours ;
-
+    private HashSet<String> requests;
+    private HashSet<String> fileList;
+    private HashMap<String, ArrayList<String>> fileDictionary;
+        
     public Node(String ip, int port, String name,DatagramSocket datagramSocket  ) {
         this.port = port;
         this.ip = ip;
         this.name = name;
         this.neighbours = new ArrayList<Neighbour>();
-        
+        this.requests = new HashSet<String>();
         this.datagramSocket = datagramSocket;
     }
     //implement register leave 
@@ -166,12 +171,33 @@ public class Node {
     public void setNeighbours(ArrayList<Neighbour> neighbours) {
         this.neighbours = neighbours;
     }
-
+    
+    public HashMap<String, ArrayList<String>> getFileDictionary(){
+        return this.fileDictionary;
+    }
+    public boolean searchRequestAvailable(String data){
+        if(!this.requests.isEmpty()){
+            if(this.requests.contains(data)){
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
    
+    public void addRequestAvailable(String data){
+        this.requests.add(data);
+    }
     
+    public void addFile(String fileName){
+        this.fileList.add(fileName);
+    }
     
-    
-    
+    public ArrayList<String> findFiles(String fileName){
+        ArrayList<String> result=new ArrayList<String>();
+        
+        return result;
+    }
     
     
     

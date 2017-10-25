@@ -15,9 +15,7 @@ import java.util.StringTokenizer;
 
 public class Message {
     private String message;
-    private MessageClass msgCls;
-    private int msgLength;
-    private Map<String, String> parameters;
+
     public Message(){
         
     }
@@ -26,7 +24,7 @@ public class Message {
         
     }
     
-    public Message(MessageClass type, String ip, int port, String name){
+    public Message(MessageClass cls, String ip, int port, String name){
         
     }
     

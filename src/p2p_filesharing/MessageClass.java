@@ -10,5 +10,5 @@ package p2p_filesharing;
  * @author Kanchana
  */
 public enum MessageClass {
-        REG, REGOK, UNREG, UNROK, JOIN, JOINOK,DISC,DISCACK, LEAVE,LEAVEOK, SER, SEROK, REG_SUCCESS, REG_FAILURE, FILES
+        REG, REGOK, UNREG, UNROK, JOIN, JOINOK,DISC,DISCACK, LEAVE,LEAVEOK, SER, SEROK
 }
