@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 /**
@@ -31,14 +32,14 @@ public class SearchFile {
         StringTokenizer token = new StringTokenizer(data);
         String length = token.nextToken();
         String command = token.nextToken();
-        ArrayList<Neighbour> neighbourList=node.getNeighbours();
+        Set<Neighbour> neighbourList=node.getNeighbours();
         String ip = token.nextToken();
         int port = Integer.parseInt(token.nextToken());
         String timestamp = token.nextToken();
         if(!this.node.searchRequestAvailable(data)){
             this.node.addRequestAvailable(data);
             discAckMsg(timestamp,ip,port);
-            for(Neighbour neighbour:node.getNeighbours()){
+            for(Neighbour neighbour:neighbourList){
                 node.sendPacket(data, neighbour.getIp(), neighbour.getPort());
             }
         }        

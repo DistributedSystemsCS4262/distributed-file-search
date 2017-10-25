@@ -20,33 +20,32 @@ public class Neighbour {
         this.port = port;
         this.name = name;
     }
+
     public Neighbour(String ip, int port) {
         this.ip = ip;
         this.port = port;
         this.name = "";
     }
 
-    
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
     public String getIp() {
-        return this.ip;
+        return ip;
     }
 
     public int getPort() {
-        return this.port;
+        return port;
     }
 
     public String getName() {
-        return this.name;
+        return name;
+    }
+
+    @Override
+    public int hashCode() {
+        return (ip + ":" + port).hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof Neighbour && ((Neighbour) obj).ip.equals(this.ip) && ((Neighbour) obj).port == this.port);
     }
 }
