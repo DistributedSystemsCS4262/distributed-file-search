@@ -71,7 +71,16 @@ public class Node {
         String register_msg = "REG " + getIp() + " " + getPort() + " " + getName();
         register_msg = this.getlength(register_msg) + " " + register_msg;
         System.out.println(register_msg);
-        this.sendPacket(register_msg, "10.10.6.215", 55555);
+        this.sendPacket(register_msg, "127.0.0.1", 55555);
+
+    }
+    
+    public void register(String serverIp) {
+
+        String register_msg = "REG " + getIp() + " " + getPort() + " " + getName();
+        register_msg = this.getlength(register_msg) + " " + register_msg;
+        System.out.println(register_msg);
+        this.sendPacket(register_msg, serverIp, 55555);
 
     }
 
@@ -80,10 +89,19 @@ public class Node {
         String register_msg = "UNREG " + getIp() + " " + getPort() + " " + getName();
         register_msg = this.getlength(register_msg) + " " + register_msg;
         System.out.println(register_msg);
-        this.sendPacket(register_msg, "10.10.6.215", 55555);
+        this.sendPacket(register_msg, "127.0.0.1", 55555);
 
     }
 
+    public void UnRegister(String serverIp) {
+
+        String register_msg = "UNREG " + getIp() + " " + getPort() + " " + getName();
+        register_msg = this.getlength(register_msg) + " " + register_msg;
+        System.out.println(register_msg);
+        this.sendPacket(register_msg, serverIp, 55555);
+
+    }
+        
     public void join(ArrayList<Neighbour> new_neighbours) {
         for (Neighbour neighbour : new_neighbours) {
             String join_msg = "JOIN " + getIp() + " " + getPort();

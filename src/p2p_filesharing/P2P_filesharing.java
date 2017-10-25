@@ -29,12 +29,16 @@ public class P2P_filesharing {
     public static void main(String[] args) throws IOException {
         // TODO code application logic here
 
-        DatagramSocket datagramSocket = new DatagramSocket();
-        Node node = new Node("127.0.0.1", datagramSocket.getLocalPort(), "Hashini", datagramSocket);
-        Listner listner = new Listner(node, datagramSocket);
-
         Scanner scanner = new Scanner(System.in);
-
+        System.out.println("What is the client name for this client");
+        String clientName = scanner.nextLine();
+        DatagramSocket datagramSocket = new DatagramSocket();
+        Node node = new Node("127.0.0.1", datagramSocket.getLocalPort(), clientName, datagramSocket);
+        Listner listner = new Listner(node, datagramSocket);
+        String serverIp = "127.0.0.1";
+       
+        System.out.println("Enter IP address. Enter 127.0.0.1 for the same machine");
+        serverIp = scanner.nextLine();
         while (true) {
             synchronized (System.out) {
                 System.out.println("Enter command");
@@ -50,11 +54,11 @@ public class P2P_filesharing {
 
             if (in.equals("r")) {
 
-                node.register();
+                node.register(serverIp);
                 new Thread(listner).start();
 
             } else if (in.equals("u")) {
-                node.UnRegister();
+                node.UnRegister(serverIp);
 
             } else if (in.equals("j")) {
 
