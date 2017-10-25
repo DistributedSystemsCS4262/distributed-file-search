@@ -62,7 +62,13 @@ public class P2P_filesharing {
                 node.leave();
 
             } else if (in.equals("s")) {
-
+                 SearchFile ser = new SearchFile(node,datagramSocket);
+                 System.out.println("Enter file name:");
+                 String filename = scanner.nextLine();
+                 filename= "\""+filename+"\"";
+                 for(Neighbour s:node.getNeighbours()){
+                    ser.initiateSearchMsg(String.valueOf(System.currentTimeMillis()), s.getIp(), s.getPort(), filename);
+                 }               
             } else if (in.equals("p")) {
                 //print neighbours
                 node.print_neighbours();
