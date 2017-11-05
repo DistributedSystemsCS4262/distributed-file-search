@@ -3,7 +3,7 @@ package p2p_filesharing_layered.messages;
 import p2p_filesharing_layered.Constants;
 import p2p_filesharing_layered.Utility;
 
-public class RegisterMessage extends Message {
+public class RegisterMessage extends RequestMessage {
     private String name;
     public RegisterMessage(String name){
         super("REG",Constants.BOOTSTRAP_SERVER_IP,Constants.BOOTSTRAP_SERVER_PORT);

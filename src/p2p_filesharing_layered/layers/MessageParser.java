@@ -1,23 +1,24 @@
 package p2p_filesharing_layered.layers;
 
-import p2p_filesharing_layered.domain.Neighbour;
-import p2p_filesharing_layered.messages.Message;
-import p2p_filesharing_layered.messages.RegisterOkMessage;
+import p2p_filesharing_layered.messages.*;
 
 import java.net.DatagramPacket;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.StringTokenizer;
 
 public class MessageParser {
     private Messenger messenger;
     private Node node;
+    private HashSet<String> requests;
+
 
     public MessageParser(Node node) {
         this.node = node;
         messenger = new Messenger(this);
+        this.requests = new HashSet<String>();
     }
 
-    public void parseMessage(Message message){
+    public void parseMessage(RequestMessage requestMessage){
 
     }
 
@@ -36,29 +37,39 @@ public class MessageParser {
                 messenger.receiveMessage(registerOkMessage);
                 break;
             case "UNROK":
-//                this.unregister_ok(token);
+                ReceiveResponseMessage receiveResponseMessage = new ReceiveResponseMessage("UNROK",token,"Unregister");
+                messenger.receiveMessage(receiveResponseMessage);
                 break;
             case "JOIN":
-//                this.join(token);
+                RequestMessage requestMessage = new RequestMessage("JOIN",token);
+                messenger.receiveMessage(requestMessage);
                 break;
             case "JOINOK":
-//                this.join_ok(token, packet);
+                ReceiveResponseMessage joinReceiveResponseMessage = new ReceiveResponseMessage("JOINOK",token,"Join",packet.getAddress().getHostAddress(), packet.getPort());
+                messenger.receiveMessage(joinReceiveResponseMessage);
                 break;
             case "LEAVE":
-//                this.leave(token);
+                RequestMessage leaveRequestMessage = new RequestMessage("LEAVE",token);
+                messenger.receiveMessage(leaveRequestMessage);
                 break;
             case "LEAVEOK":
-//                this.leave_ok(token, packet);
+                ReceiveResponseMessage leaveReceiveResponseMessage = new ReceiveResponseMessage("LEAVEOK",token,"Leave",packet.getAddress().getHostAddress(), packet.getPort());
+                messenger.receiveMessage(leaveReceiveResponseMessage);
                 break;
             case "DISC":
-//                ser.searchDiscMsgRecieved(data);
+                if(requests.isEmpty() || !requests.contains(data)){
+                    requests.add(data);
+                    OtherDiscoverMessage otherDiscoverMessage = new OtherDiscoverMessage(data);
+                    messenger.receiveMessage(otherDiscoverMessage);
+                }
                 break;
             case "DISCACK":
-//                ser.search(data);
+                DiscoverMessage discoverMessage = new DiscoverMessage(data);
+                messenger.receiveMessage(discoverMessage);
                 break;
             case "SER":
-//                ser.searchMsgRecieved(data);
-                //this.search_ok();
+                SearchMessage searchMessage = new SearchMessage(data);
+                messenger.receiveMessage(searchMessage);
                 break;
             case "SEROK":
                 System.out.println(data);
@@ -72,7 +83,7 @@ public class MessageParser {
         }
     }
 
-    public void sendMessage(Message message) {
-        node.send(message.packetMessage(),message.getIp(),message.getPort());
+    public void sendMessage(RequestMessage requestMessage) {
+        node.send(requestMessage.packetMessage(), requestMessage.getIp(), requestMessage.getPort());
     }
 }
