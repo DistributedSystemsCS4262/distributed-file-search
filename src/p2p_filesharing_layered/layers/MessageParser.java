@@ -75,6 +75,18 @@ public class MessageParser {
                 System.out.println(data);
 //                this.search_ok(token);
                 break;
+            case "NEXT":
+                RequestMessage requestMessege=new RequestMessage("NEXT", token);
+                messenger.receiveMessage(requestMessege);
+                break;
+            case "NEXTOK":
+                //compose a next ok message
+                // send to messenger .receive
+                ReceiveResponseMessage nextOkMessage=new ReceiveResponseMessage("NEXTOK",token,data);
+                nextOkMessage.setIp(packet.getAddress().getHostAddress());
+                nextOkMessage.setPort(packet.getPort());
+                messenger.receiveMessage(nextOkMessage);
+                break;
             case "ERROR":
 //                this.error();
                 break;
