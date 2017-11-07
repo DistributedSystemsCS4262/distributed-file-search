@@ -48,6 +48,10 @@ public class Messenger {
             controller.handleSearchRequest((SearchMessage)requestMessage);
         }else if(requestMessage.getAction().equals("NEXT")){
              controller.handleGetSuccessorsRequest(requestMessage);
+        }else if(requestMessage.getAction().equals("ALIVE")){
+            controller.handleAliveRequest((AliveMessage)requestMessage);
+        }else if(requestMessage.getAction().equals("ISALIVE")){
+             controller.handleIsAliveMessege((IsAliveMessage)requestMessage);
         }
     }
 
