@@ -14,13 +14,16 @@ public class Controller extends Thread {
     private FileSystem fileSystem;
     private List<Neighbour> neighbours;
     private ConcurrentMap<Integer, Set<Neighbour>> succesors;
+    private HeartbeatHandler hbHandler;
 
     public Controller(Messenger messenger) {
         this.messenger = messenger;
         this.fileSystem = new FileSystem();
         neighbours = new ArrayList<>();
         this.succesors = new ConcurrentHashMap<Integer, Set<Neighbour>>();
+        hbHandler = new HeartbeatHandler(messenger, neighbours, succesors);
         this.start();
+        hbHandler.start();
     }
 
     public void handleRegisterOkResponse(RegisterOkMessage registerOkMessage) {
@@ -116,12 +119,12 @@ public class Controller extends Thread {
             for (Neighbour neighbour : neighbours) {
                 System.out.println(String.format("\t\tIp %s : Port %d", neighbour.getIp(), neighbour.getPort()));
             }
-            
+
             System.out.println("set of sucessors");
-            for (int key :succesors.keySet()){
-                System.out.println("key : "+key);
-                for(Neighbour neighbour: succesors.get(key)){
-                    System.out.println("\t"+neighbour.getIp()+" : "+neighbour.getPort() );
+            for (int key : succesors.keySet()) {
+                System.out.println("key : " + key);
+                for (Neighbour neighbour : succesors.get(key)) {
+                    System.out.println("\t" + neighbour.getIp() + " : " + neighbour.getPort());
                 }
             }
         }
@@ -247,5 +250,10 @@ public class Controller extends Thread {
         }
         //add suceesors to the hash map
     }
-
+    void handleIsAliveMessege(IsAliveMessage messege){
+        
+    }
+    void handleAliveRequest(AliveMessage response){
+        hbHandler.handleIsAliveResponse(response);
+    }
 }

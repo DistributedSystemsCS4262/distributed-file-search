@@ -7,10 +7,10 @@ import java.util.HashSet;
 import java.util.StringTokenizer;
 
 public class MessageParser {
+
     private Messenger messenger;
     private Node node;
     private HashSet<String> requests;
-
 
     public MessageParser(Node node) {
         this.node = node;
@@ -18,7 +18,7 @@ public class MessageParser {
         this.requests = new HashSet<String>();
     }
 
-    public void parseMessage(RequestMessage requestMessage){
+    public void parseMessage(RequestMessage requestMessage) {
 
     }
 
@@ -26,7 +26,7 @@ public class MessageParser {
         byte[] dataRaw = packet.getData();
         String data = new String(dataRaw, 0, packet.getLength());
         // handle data , implement parser
-        System.out.println("Parsing msg "+data);
+        System.out.println("Parsing msg " + data);
         StringTokenizer token = new StringTokenizer(data);
         String lenght = token.nextToken();
         String command = token.nextToken();
@@ -37,27 +37,27 @@ public class MessageParser {
                 messenger.receiveMessage(registerOkMessage);
                 break;
             case "UNROK":
-                ReceiveResponseMessage receiveResponseMessage = new ReceiveResponseMessage("UNROK",token,"Unregister");
+                ReceiveResponseMessage receiveResponseMessage = new ReceiveResponseMessage("UNROK", token, "Unregister");
                 messenger.receiveMessage(receiveResponseMessage);
                 break;
             case "JOIN":
-                RequestMessage requestMessage = new RequestMessage("JOIN",token);
+                RequestMessage requestMessage = new RequestMessage("JOIN", token);
                 messenger.receiveMessage(requestMessage);
                 break;
             case "JOINOK":
-                ReceiveResponseMessage joinReceiveResponseMessage = new ReceiveResponseMessage("JOINOK",token,"Join",packet.getAddress().getHostAddress(), packet.getPort());
+                ReceiveResponseMessage joinReceiveResponseMessage = new ReceiveResponseMessage("JOINOK", token, "Join", packet.getAddress().getHostAddress(), packet.getPort());
                 messenger.receiveMessage(joinReceiveResponseMessage);
                 break;
             case "LEAVE":
-                RequestMessage leaveRequestMessage = new RequestMessage("LEAVE",token);
+                RequestMessage leaveRequestMessage = new RequestMessage("LEAVE", token);
                 messenger.receiveMessage(leaveRequestMessage);
                 break;
             case "LEAVEOK":
-                ReceiveResponseMessage leaveReceiveResponseMessage = new ReceiveResponseMessage("LEAVEOK",token,"Leave",packet.getAddress().getHostAddress(), packet.getPort());
+                ReceiveResponseMessage leaveReceiveResponseMessage = new ReceiveResponseMessage("LEAVEOK", token, "Leave", packet.getAddress().getHostAddress(), packet.getPort());
                 messenger.receiveMessage(leaveReceiveResponseMessage);
                 break;
             case "DISC":
-                if(requests.isEmpty() || !requests.contains(data)){
+                if (requests.isEmpty() || !requests.contains(data)) {
                     requests.add(data);
                     OtherDiscoverMessage otherDiscoverMessage = new OtherDiscoverMessage(data);
                     messenger.receiveMessage(otherDiscoverMessage);
@@ -76,16 +76,24 @@ public class MessageParser {
 //                this.search_ok(token);
                 break;
             case "NEXT":
-                RequestMessage requestMessege=new RequestMessage("NEXT", token);
+                RequestMessage requestMessege = new RequestMessage("NEXT", token);
                 messenger.receiveMessage(requestMessege);
                 break;
             case "NEXTOK":
                 //compose a next ok message
                 // send to messenger .receive
-                ReceiveResponseMessage nextOkMessage=new ReceiveResponseMessage("NEXTOK",token,data);
+                ReceiveResponseMessage nextOkMessage = new ReceiveResponseMessage("NEXTOK", token, data);
                 nextOkMessage.setIp(packet.getAddress().getHostAddress());
                 nextOkMessage.setPort(packet.getPort());
                 messenger.receiveMessage(nextOkMessage);
+                break;
+            case "ALIVE":
+                AliveMessage alive = new AliveMessage("ALIVE", token);
+                messenger.receiveMessage(alive);
+                break;
+            case "ISALIVE":
+                IsAliveMessage isAlive = new IsAliveMessage("ALIVE", token);
+                messenger.receiveMessage(isAlive);
                 break;
             case "ERROR":
 //                this.error();
