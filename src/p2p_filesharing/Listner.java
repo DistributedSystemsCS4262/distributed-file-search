@@ -59,7 +59,7 @@ public class Listner implements Runnable {
                 ser.searchDiscMsgRecieved(data);
                 break;
             case "DISCACK":
-                
+
                 ser.search(data);
                 break;
             case "SER":

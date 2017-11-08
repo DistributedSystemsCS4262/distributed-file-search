@@ -40,7 +40,7 @@ public class P2P_filesharing {
                 System.out.println("Enter command");
                 System.out.println("r : Register with bootstrap server");
                 System.out.println("u : Unregister from bootstrap server");
-                // System.out.println("j : join ");
+                // System.out.println("j : joinWithNeighbours ");
                 System.out.println("l : leave distributed system");
                 System.out.println("s : serch file");
                 System.out.println("p : print neighbours");

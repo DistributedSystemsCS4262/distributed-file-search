@@ -22,9 +22,7 @@ public class MessageParser {
 
     }
 
-    public void parseMessage(DatagramPacket packet) {
-        byte[] dataRaw = packet.getData();
-        String data = new String(dataRaw, 0, packet.getLength());
+    public void parseMessage(String data,String ip, int port) {
         // handle data , implement parser
         System.out.println("Parsing msg "+data);
         StringTokenizer token = new StringTokenizer(data);
@@ -45,7 +43,7 @@ public class MessageParser {
                 messenger.receiveMessage(requestMessage);
                 break;
             case "JOINOK":
-                ReceiveResponseMessage joinReceiveResponseMessage = new ReceiveResponseMessage("JOINOK",token,"Join",packet.getAddress().getHostAddress(), packet.getPort());
+                ReceiveResponseMessage joinReceiveResponseMessage = new ReceiveResponseMessage("JOINOK",token,"Join",ip, port);
                 messenger.receiveMessage(joinReceiveResponseMessage);
                 break;
             case "LEAVE":
@@ -53,7 +51,7 @@ public class MessageParser {
                 messenger.receiveMessage(leaveRequestMessage);
                 break;
             case "LEAVEOK":
-                ReceiveResponseMessage leaveReceiveResponseMessage = new ReceiveResponseMessage("LEAVEOK",token,"Leave",packet.getAddress().getHostAddress(), packet.getPort());
+                ReceiveResponseMessage leaveReceiveResponseMessage = new ReceiveResponseMessage("LEAVEOK",token,"Leave",ip, port);
                 messenger.receiveMessage(leaveReceiveResponseMessage);
                 break;
             case "DISC":
@@ -83,8 +81,8 @@ public class MessageParser {
                 //compose a next ok message
                 // send to messenger .receive
                 ReceiveResponseMessage nextOkMessage=new ReceiveResponseMessage("NEXTOK",token,data);
-                nextOkMessage.setIp(packet.getAddress().getHostAddress());
-                nextOkMessage.setPort(packet.getPort());
+                nextOkMessage.setIp(ip);
+                nextOkMessage.setPort(port);
                 messenger.receiveMessage(nextOkMessage);
                 break;
             case "ERROR":
