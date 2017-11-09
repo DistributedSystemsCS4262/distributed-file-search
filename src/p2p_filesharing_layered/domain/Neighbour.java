@@ -39,4 +39,8 @@ public class Neighbour {
     public boolean equals(Object obj) {
         return (obj instanceof Neighbour && ((Neighbour) obj).ip.equals(this.ip) && ((Neighbour) obj).port == this.port);
     }
+    @Override
+    public String toString(){
+        return "Neigbour: IP "+ip+" ,port "+port;
+    }
 }

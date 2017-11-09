@@ -92,7 +92,7 @@ public class MessageParser {
                 messenger.receiveMessage(alive);
                 break;
             case "ISALIVE":
-                IsAliveMessage isAlive = new IsAliveMessage("ALIVE", token);
+                IsAliveMessage isAlive = new IsAliveMessage("ISALIVE", token);
                 messenger.receiveMessage(isAlive);
                 break;
             case "ERROR":
