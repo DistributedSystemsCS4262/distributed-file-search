@@ -27,6 +27,8 @@ public class Messenger {
                 controller.handleLeaveOkResponse(receiveResponseMessage);
             } else if (receiveResponseMessage.getAction().equals("JOINOK")) {
                 controller.handleJoinOkResponse(receiveResponseMessage);
+            } else if (receiveResponseMessage.getAction().equals("UNROK")){
+            controller.handleUnrOkResponse(receiveResponseMessage);
             }
         }else if(receiveResponseMessage.getValue().equals("9999")){
             System.out.println("error while "+ receiveResponseMessage.getDescription()+" !");

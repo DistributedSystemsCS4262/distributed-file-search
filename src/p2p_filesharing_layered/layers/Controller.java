@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import p2p_filesharing_layered.Constants;
+import p2p_filesharing_layered.interfaces.MainUI;
 
 public class Controller extends Thread {
 
@@ -14,23 +15,35 @@ public class Controller extends Thread {
     private FileSystem fileSystem;
     private List<Neighbour> neighbours;
     private ConcurrentMap<Integer, Set<Neighbour>> succesors;
+    private MainUI userInterface;
 
     public Controller(Messenger messenger) {
         this.messenger = messenger;
         this.fileSystem = new FileSystem();
         neighbours = new ArrayList<>();
         this.succesors = new ConcurrentHashMap<Integer, Set<Neighbour>>();
-        this.start();
+        userInterface=new MainUI(this);
+        
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+               userInterface.setVisible(true);
+            }
+        });
+        //this.start();
     }
 
     public void handleRegisterOkResponse(RegisterOkMessage registerOkMessage) {
+        
+        userInterface.updateInterface("Successfully Registered with the Server \n"+Constants.IP_ADDRESS + " : " + Constants.PORT + "\n");
         for (Neighbour neighbour : registerOkMessage.getNeighbours()) {
             messenger.sendMessage(new RequestMessage("JOIN", neighbour.getIp(), neighbour.getPort()));
         }
     }
 
     public void register() {
+        
         messenger.sendMessage(new RegisterMessage("VINUJAN"));
+       
     }
 
     public void unregister() {
@@ -44,6 +57,9 @@ public class Controller extends Thread {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
+            
+            
+            
             synchronized (System.out) {
                 System.out.println("Enter command");
                 System.out.println("r : Register with bootstrap server");
@@ -88,14 +104,17 @@ public class Controller extends Thread {
         }
     }
 
-    private void printFiles() {
+    public String printFiles() {
+        String output="\nLIST OF FILES\n";
         List<String> files = fileSystem.getAllFiles();
         for (String file : files) {
             System.out.println(file);
+            output+= "\t" +file+"\n";
         }
+        return output;
     }
 
-    private void initiateSearch(String fileName) {
+    public void initiateSearch(String fileName) {
         if (fileName.isEmpty()) {
             System.out.println("Search filename is blank");
             return;
@@ -106,28 +125,37 @@ public class Controller extends Thread {
         }
     }
 
-    private void printNeighbours() {
+    public String printNeighbours() {
+        
+        String output="";
         synchronized (System.out) {
             System.out.println("set of neighbours");
+            output="\n\nSET OF NEIGHBOURS:\n";
             if (neighbours.isEmpty()) {
-                System.out.println("No neighbours");
-                return;
+                System.out.println("\nNo neighbours");
+                output+="\tNO NEIGHBOURS FOUND";
+                return output;
             }
             for (Neighbour neighbour : neighbours) {
                 System.out.println(String.format("\t\tIp %s : Port %d", neighbour.getIp(), neighbour.getPort()));
+                output+="\t " + neighbour.getIp() + " : "+ neighbour.getPort() + "\n";
             }
             
-            System.out.println("set of sucessors");
+            System.out.println("\nset of sucessors");
+            output+="\nSET OF SUCCESSORS\n";
             for (int key :succesors.keySet()){
                 System.out.println("key : "+key);
+                output+="key : "+key +"\n";
                 for(Neighbour neighbour: succesors.get(key)){
                     System.out.println("\t"+neighbour.getIp()+" : "+neighbour.getPort() );
+                    output+="\t"+neighbour.getIp()+" : "+neighbour.getPort()+ "\n";
                 }
             }
         }
+        return output;
     }
 
-    private void leave() {
+    public void leave() {
         for (Neighbour neighbour : neighbours) {
             messenger.sendMessage(new RequestMessage("LEAVE", neighbour.getIp(), neighbour.getPort()));
         }
@@ -135,11 +163,15 @@ public class Controller extends Thread {
 
     public void handleJoinOkResponse(ReceiveResponseMessage receiveResponseMessage) {
         neighbours.add(new Neighbour(receiveResponseMessage.getIp(), receiveResponseMessage.getPort()));
+        String output="Connected witht the Neighbour : \t" +receiveResponseMessage.getIp()+ " : " +receiveResponseMessage.getPort() +"\n";
+        userInterface.updateInterface(output);
         messenger.sendMessage(new RequestMessage("NEXT", receiveResponseMessage.getIp(), receiveResponseMessage.getPort()));
     }
 
     public void handleLeaveOkResponse(ReceiveResponseMessage receiveResponseMessage) {
         neighbours.remove(new Neighbour(receiveResponseMessage.getIp(), receiveResponseMessage.getPort()));
+        String output="Disconnected witht the Neighbour : \t" +receiveResponseMessage.getIp()+ " : " +receiveResponseMessage.getPort() +"\n";
+        userInterface.updateInterface(output);
     }
 
     public void handleJoinRequest(RequestMessage requestMessage) {
@@ -175,6 +207,17 @@ public class Controller extends Thread {
         messenger.sendMessage(new SearchMessage("SER", d.getIp(), d.getPort(), d.getFileName(), 0));
     }
 
+    public void handleSearchOk(){
+        String output="\nFile you searched :";
+        //if no of hits>0
+        output+="\nIP: Port: Hops: No of Hits:";
+        //else
+        output+="FIlE NOT FOUND";
+        //for 9999 and 9998
+    userInterface.updateInterface(output);
+    
+    }
+    
     public void handleSearchRequest(SearchMessage searchMessage) {
         StringTokenizer token = new StringTokenizer(searchMessage.getFileName());
         String word = token.nextToken();
@@ -235,10 +278,18 @@ public class Controller extends Thread {
             StringTokenizer succesorDetails = new StringTokenizer(message[3]);
             int key = (receiveResponseMessage.getIp() + ":" + receiveResponseMessage.getPort()).hashCode();
             Set<Neighbour> succesorsLocal = ConcurrentHashMap.newKeySet();
-            while (succesorDetails.hasMoreTokens()) {
+            
+            
+            
+            while (succesorDetails.hasMoreTokens()) {                
                 succesorsLocal.add(new Neighbour(succesorDetails.nextToken(), Integer.parseInt(succesorDetails.nextToken())));
             }
-
+            //remove neighbours
+            for(Neighbour neighbour : neighbours){
+            succesorsLocal.remove(new Neighbour(neighbour.getIp(),neighbour.getPort()));           
+            }
+            
+            
             if (!succesors.containsKey(key)) {
                 succesors.put(key, succesorsLocal);
             } else {
@@ -246,6 +297,10 @@ public class Controller extends Thread {
             }
         }
         //add suceesors to the hash map
+    }
+
+    void handleUnrOkResponse(ReceiveResponseMessage receiveResponseMessage) {
+        userInterface.updateInterface("Successfully Unregistered with the Server \n"+Constants.IP_ADDRESS + " : " + Constants.PORT);
     }
 
 }
