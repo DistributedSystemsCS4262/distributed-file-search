@@ -119,7 +119,7 @@ public class Controller extends Thread {
             for (Neighbour neighbour : neighbours) {
                 System.out.println(String.format("\t\tIp %s : Port %d", neighbour.getIp(), neighbour.getPort()));
             }
-            
+
             System.out.println("set of sucessors");
             for (int key : succesors.keySet()) {
                 System.out.println("key : " + key);
