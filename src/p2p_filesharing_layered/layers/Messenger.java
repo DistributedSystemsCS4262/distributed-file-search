@@ -19,7 +19,11 @@ public class Messenger {
         if (receiveResponseMessage.getAction().equals("NEXTOK")){
             controller.handleGetSuccessorsOkResponse(receiveResponseMessage);
             return;
-        }
+        }else if(receiveResponseMessage.getAction().equals("SEROK")){
+                System.out.println("serch ok :"+receiveResponseMessage.getDescription());
+            controller.handleSearchOk(receiveResponseMessage);
+            return;
+            }
         
         if(receiveResponseMessage.getValue().equals("0")){
             System.out.println(receiveResponseMessage.getDescription()+" success!");
@@ -50,6 +54,10 @@ public class Messenger {
             controller.handleSearchRequest((SearchMessage)requestMessage);
         }else if(requestMessage.getAction().equals("NEXT")){
              controller.handleGetSuccessorsRequest(requestMessage);
+        }else if(requestMessage.getAction().equals("ALIVE")){
+            controller.handleAliveRequest((AliveMessage)requestMessage);
+        }else if(requestMessage.getAction().equals("ISALIVE")){
+             controller.handleIsAliveMessege((IsAliveMessage)requestMessage);
         }
     }
 

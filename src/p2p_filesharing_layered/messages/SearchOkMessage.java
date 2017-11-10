@@ -25,7 +25,7 @@ public class SearchOkMessage extends RequestMessage {
     public String packetMessage() {
         String searchOk ="SEROK "+fileList.size()+" "+ Constants.IP_ADDRESS + " " + Constants.PORT+" 1";
         for(String file:fileList){
-            searchOk=searchOk+ " " + file;
+            searchOk=searchOk+ " | " + file;
         }
         searchOk = Utility.getMessageLength(searchOk) + " " + searchOk;
         return searchOk;

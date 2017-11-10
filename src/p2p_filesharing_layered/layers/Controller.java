@@ -30,7 +30,7 @@ public class Controller extends Thread {
                userInterface.setVisible(true);
             }
         });
-        hbHandler.start();
+        hbHandler.start(); //start heart beat
         //this.start();
     }
     
@@ -219,12 +219,22 @@ public class Controller extends Thread {
         messenger.sendMessage(new SearchMessage("SER", d.getIp(), d.getPort(), d.getFileName(), 0));
     }
 
-    public void handleSearchOk(){
-        String output="\nFile you searched :";
+    public void handleSearchOk(ReceiveResponseMessage receiveResponseMessage){
+        
         //if no of hits>0
-        output+="\nIP: Port: Hops: No of Hits:";
+        String output="";
+        System.out.println("get value"+receiveResponseMessage.getValue());
+        if(Integer.parseInt(receiveResponseMessage.getValue())>0){
+             output="\nSearch Result :";
+            //StringTokenizer token= new StringTokenizer(receiveResponseMessage.getDescription(),"|");
+           
+            
+            output+="\n"+receiveResponseMessage.getDescription()+"\n";
+        
+        }
+        
         //else
-        output+="FIlE NOT FOUND";
+        //output+="FIlE NOT FOUND";
         //for 9999 and 9998
     userInterface.updateInterface(output);
     

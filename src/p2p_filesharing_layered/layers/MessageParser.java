@@ -5,12 +5,14 @@ import p2p_filesharing_layered.messages.*;
 import java.net.DatagramPacket;
 import java.util.HashSet;
 import java.util.StringTokenizer;
+import p2p_filesharing_layered.Constants;
 
 public class MessageParser {
 
     private Messenger messenger;
     private UDP node;
     private HashSet<String> requests;
+    
 
     public MessageParser(UDP node) {
         this.node = node;
@@ -24,7 +26,8 @@ public class MessageParser {
 
     public void parseMessage(String message, String ip, int port) {
         // handle data , implement parser
-        System.out.println("Parsing msg " + message);
+        System.out.println("Parsing msg TCP" + message);
+        
         StringTokenizer token = new StringTokenizer(message);
         String lenght = token.nextToken();
         String command = token.nextToken();
@@ -73,6 +76,10 @@ public class MessageParser {
                 break;
             case "SEROK":
                 System.out.println(message);
+                ReceiveResponseMessage serOk=new ReceiveResponseMessage("SEROK", token, message);
+                serOk.setIp(ip);
+                serOk.setPort(port);
+                messenger.receiveMessage(serOk);
                 // send it to messenger-> controller
 //                this.search_ok(token);
                 break;
@@ -108,7 +115,7 @@ public class MessageParser {
         byte[] dataRaw = packet.getData();
         String data = new String(dataRaw, 0, packet.getLength());
         // handle data , implement parser
-        System.out.println("Parsing msg " + data);
+        System.out.println("Parsing msg UDP" + data);
         StringTokenizer token = new StringTokenizer(data);
         String lenght = token.nextToken();
         String command = token.nextToken();
@@ -155,6 +162,10 @@ public class MessageParser {
                 break;
             case "SEROK":
                 System.out.println(data);
+                ReceiveResponseMessage serOk=new ReceiveResponseMessage("SEROK", token, data);
+                serOk.setIp(packet.getAddress().getHostAddress());
+                serOk.setPort(packet.getPort());
+                messenger.receiveMessage(serOk);
                  // send it to messenger-> controller
 //                this.search_ok(token);
                 break;
@@ -187,6 +198,8 @@ public class MessageParser {
     }
 
     public void sendMessage(RequestMessage requestMessage) {
+        
         node.send(requestMessage.packetMessage(), requestMessage.getIp(), requestMessage.getPort());
+        
     }
 }

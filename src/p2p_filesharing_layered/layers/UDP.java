@@ -48,6 +48,7 @@ public class UDP extends Thread {
 
         if (Constants.UDP_MODE==2 && !message.contains("REG") && !message.contains("UNROK")) {
             webService.sendPacket(message, ip, port);
+            System.out.println("web S send"+message);
             return;
         }
 
