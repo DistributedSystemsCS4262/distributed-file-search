@@ -13,22 +13,24 @@ public class Controller extends Thread {
 
     private Messenger messenger;
     private FileSystem fileSystem;
-    private List<Neighbour> neighbours;
+    private Set<Neighbour> neighbours;
     private ConcurrentMap<Integer, Set<Neighbour>> succesors;
     private MainUI userInterface;
+    private HeartbeatHandler hbHandler;
 
     public Controller(Messenger messenger) {
         this.messenger = messenger;
         this.fileSystem = new FileSystem();
-        neighbours = new ArrayList<>();
+        neighbours = new HashSet<>();
         this.succesors = new ConcurrentHashMap<Integer, Set<Neighbour>>();
         userInterface=new MainUI(this);
-        
+        hbHandler = new HeartbeatHandler(this.messenger, this);
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                userInterface.setVisible(true);
             }
         });
+        hbHandler.start();
         //this.start();
     }
 
@@ -302,5 +304,48 @@ public class Controller extends Thread {
     void handleUnrOkResponse(ReceiveResponseMessage receiveResponseMessage) {
         userInterface.updateInterface("Successfully Unregistered with the Server \n"+Constants.IP_ADDRESS + " : " + Constants.PORT);
     }
+    
+    
+   
 
+    public ArrayList<Neighbour> getNeighbours() {
+        ArrayList<Neighbour> new_neighbours = new ArrayList<>();
+
+        //System.out.println("neighbour info statrs :");
+        for (Neighbour neighbour : new ArrayList<>(neighbours)) {
+            Neighbour nei = new Neighbour(neighbour.getIp(), neighbour.getPort());
+
+            System.out.println("neighbour info :" + nei.getIp());
+            new_neighbours.add(nei);
+        }
+
+        return new_neighbours;
+    }
+    
+    public boolean removeDeadNeighbour(Neighbour neighbour){
+        
+        boolean remove=neighbours.remove(neighbour);
+        System.out.println("dead node removed " + neighbour.getPort());
+    return remove;
+    
+    
+    }
+    public ConcurrentMap<Integer, Set<Neighbour>> getSuccessors() {
+        ConcurrentMap<Integer, Set<Neighbour>> new_successors = new ConcurrentHashMap<Integer, Set<Neighbour>>(succesors);
+
+       // System.out.println("neighbour info statrs :");
+        
+
+        return new_successors;
+    }
+    
+     void handleIsAliveMessege(IsAliveMessage messege) {
+        hbHandler.handleIsAliveRequest(messege);
+    }
+
+    void handleAliveRequest(AliveMessage response) {
+        hbHandler.handleIsAliveResponse(response);
+    }
+    
+    
 }

@@ -86,6 +86,14 @@ public class MessageParser {
                 nextOkMessage.setPort(port);
                 messenger.receiveMessage(nextOkMessage);
                 break;
+            case "ALIVE":
+                AliveMessage alive = new AliveMessage("ALIVE", token);
+                messenger.receiveMessage(alive);
+                break;
+            case "ISALIVE":
+                IsAliveMessage isAlive = new IsAliveMessage("ISALIVE", token);
+                messenger.receiveMessage(isAlive);
+                break;
             case "ERROR":
 //                this.error();
                 break;
@@ -159,6 +167,14 @@ public class MessageParser {
                 nextOkMessage.setIp(packet.getAddress().getHostAddress());
                 nextOkMessage.setPort(packet.getPort());
                 messenger.receiveMessage(nextOkMessage);
+                break;
+            case "ALIVE":
+                AliveMessage alive = new AliveMessage("ALIVE", token);
+                messenger.receiveMessage(alive);
+                break;
+            case "ISALIVE":
+                IsAliveMessage isAlive = new IsAliveMessage("ISALIVE", token);
+                messenger.receiveMessage(isAlive);
                 break;
             case "ERROR":
 //                this.error();
