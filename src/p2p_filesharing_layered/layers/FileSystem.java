@@ -26,10 +26,10 @@ public class FileSystem {
 
     private HashMap<String, ArrayList<String>> generateFileDictionry(ArrayList<String> filelistNode) {
         HashMap<String, ArrayList<String>> results = new HashMap<>();
-        for (String fileName : fileList) {
+        for (String fileName : filelistNode) {
             StringTokenizer stringTokenizer = new StringTokenizer(fileName);
             while (stringTokenizer.hasMoreTokens()) {
-                String word = stringTokenizer.nextToken();
+                String word = stringTokenizer.nextToken().toUpperCase();
                 if (results.containsKey(word)) {
                     results.get(word).add(fileName);
                 } else {
@@ -41,10 +41,15 @@ public class FileSystem {
     }
 
     public List<String> searchFiles(String word){
+        word= word.toUpperCase();
         return fileDictionary.get(word);
     }
 
     public List<String> getAllFiles(){
         return this.systemFileList;
+    }
+    
+    public Map<String, ArrayList<String>> getDictFiles(){
+        return this.fileDictionary;
     }
 }

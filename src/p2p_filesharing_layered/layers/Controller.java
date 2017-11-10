@@ -31,6 +31,12 @@ public class Controller extends Thread {
         });
         //this.start();
     }
+    
+    public void printAllFiles(){
+        for(String file:fileSystem.getAllFiles()){
+            System.out.println(file);
+        }
+    }
 
     public void handleRegisterOkResponse(RegisterOkMessage registerOkMessage) {
         
@@ -69,6 +75,9 @@ public class Controller extends Thread {
                 System.out.println("s : initiateSearch file");
                 System.out.println("p : print neighbours");
                 System.out.println("f : print files");
+                for(String file:fileSystem.getAllFiles()){
+                  System.out.println(file);
+                }
             }
 
             String in = scanner.nextLine().toLowerCase();
@@ -111,6 +120,7 @@ public class Controller extends Thread {
             System.out.println(file);
             output+= "\t" +file+"\n";
         }
+        
         return output;
     }
 
@@ -121,7 +131,7 @@ public class Controller extends Thread {
         }
         fileName = "\"" + fileName + "\"";
         for (Neighbour neighbour : neighbours) {
-            messenger.sendMessage(new DiscoverMessage("DISC", neighbour.getIp(), neighbour.getPort(), fileName, String.valueOf(System.currentTimeMillis())));
+            messenger.sendMessage(new DiscoverMessage("DISC", neighbour.getIp(), neighbour.getPort(), fileName, String.valueOf(System.currentTimeMillis()),1));
         }
     }
 
@@ -195,7 +205,7 @@ public class Controller extends Thread {
     }
 
     public void handleDiscoverRequest(OtherDiscoverMessage o) {
-        messenger.sendMessage(new DiscoverMessage("DISCACK", o.getIp(), o.getPort(), o.getFileName(), o.getTimeStamp()));
+        messenger.sendMessage(new DiscoverMessage("DISCACK", o.getIp(), o.getPort(), o.getFileName(), o.getTimeStamp(),o.getHopCount()));
         for (Neighbour neighbour : this.neighbours) {
             if (!(neighbour.getIp().equals(o.getIp()) && neighbour.getPort() == o.getPort())) {
                 messenger.sendMessage(new OtherDiscoverMessage(o, neighbour.getIp(), neighbour.getPort()));
@@ -232,9 +242,9 @@ public class Controller extends Thread {
         }
         ArrayList<String> filelist = new ArrayList<>();
         if (result != null && !result.isEmpty()) {
-            String searchString = searchMessage.getFileName().replace(" ", "#") + "#";
+            String searchString = searchMessage.getFileName().toUpperCase().replace(" ", "#") + "#";
             for (String file : result) {
-                String fileModified = file.replace(" ", "#") + "#";
+                String fileModified = file.toUpperCase().replace(" ", "#") + "#";
                 if (fileModified.contains(searchString)) {
                     filelist.add(file);
                 }

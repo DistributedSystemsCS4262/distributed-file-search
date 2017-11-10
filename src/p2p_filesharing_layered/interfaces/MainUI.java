@@ -7,6 +7,7 @@ package p2p_filesharing_layered.interfaces;
 
 import javax.swing.text.DefaultCaret;
 import p2p_filesharing_layered.layers.Controller;
+import p2p_filesharing_layered.layers.FileSystem;
 
 /**
  *
@@ -19,7 +20,6 @@ public class MainUI extends javax.swing.JFrame {
      */
     
     private Controller controller;
-    
     
     public MainUI() {
         initComponents();
@@ -234,6 +234,7 @@ public class MainUI extends javax.swing.JFrame {
                 new MainUI().setVisible(true);
             }
         });
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

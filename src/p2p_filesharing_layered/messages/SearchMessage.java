@@ -16,10 +16,11 @@ public class SearchMessage extends RequestMessage {
         setIp(token.nextToken());
         setPort(Integer.parseInt(token.nextToken()));
         token.nextToken();
-        this.hops = Integer.parseInt(token.nextToken());
+        
         token = new StringTokenizer(receivedData, "\"");
         token.nextToken();
         this.fileName = token.nextToken();
+        this.hops = Integer.parseInt(token.nextToken().trim());
     }
 
     public SearchMessage(String action, String ip, int port, String fileName, int hops) {

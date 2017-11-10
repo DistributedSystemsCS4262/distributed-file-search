@@ -9,6 +9,7 @@ public class OtherDiscoverMessage  extends RequestMessage {
     private String fileName;
     private String timeStamp;
     private String packetMessageData;
+    private int hopCount;
 
     public OtherDiscoverMessage(String receivedData) {
         this.packetMessageData = receivedData;
@@ -21,6 +22,7 @@ public class OtherDiscoverMessage  extends RequestMessage {
         setIp(token.nextToken());
         setPort(Integer.parseInt(token.nextToken()));
         this.timeStamp = token.nextToken();
+        this.hopCount = Integer.parseInt(token.nextToken()) + 1;
     }
 
     public OtherDiscoverMessage(OtherDiscoverMessage o, String ip, int port){
@@ -57,5 +59,13 @@ public class OtherDiscoverMessage  extends RequestMessage {
 
     public void setPacketMessageData(String packetMessageData) {
         this.packetMessageData = packetMessageData;
+    }
+    
+    public int getHopCount(){
+        return hopCount;
+    }
+    
+    public void setHopCount(int hopCount){
+        this.hopCount = hopCount;
     }
 }

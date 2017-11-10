@@ -55,8 +55,10 @@ public class MessageParser {
                 messenger.receiveMessage(leaveReceiveResponseMessage);
                 break;
             case "DISC":
-                if (requests.isEmpty() || !requests.contains(message)) {
-                    requests.add(message);
+                String messageCopy = message.trim();
+                messageCopy.replaceAll(" [^ ]+$", "");
+                if (requests.isEmpty() || !requests.contains(messageCopy)) {
+                    requests.add(messageCopy);
                     OtherDiscoverMessage otherDiscoverMessage = new OtherDiscoverMessage(message);
                     messenger.receiveMessage(otherDiscoverMessage);
                 }
