@@ -5,7 +5,9 @@
  */
 package p2p_filesharing_layered.layers;
 
+import com.mashape.unirest.http.Headers;
 import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
@@ -13,8 +15,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.async.Callback;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,17 +40,48 @@ public class WebService {
     }
 
     public void sendPacket(String message, String ip, int port) {
-        try {
-            HttpResponse<String> response = Unirest.post(String.format("http://%s:%d/", ip, port))
-                    .header("content-type", "application/json")
-                    .body((new WebServiceMessage(
-                            message,
-                            Constants.IP_ADDRESS,
-                            Constants.PORT
-                    )).getJsonMessage())
-                    .asString();            
-        } catch (Exception e) {
-        }
+        Future<HttpResponse<JsonNode>> future = Unirest.post(String.format("http://%s:%d/", ip, port))
+                            .header("content-type", "application/json")
+                            .body((new WebServiceMessage(
+                                    message,
+                                    Constants.IP_ADDRESS,
+                                    Constants.PORT
+                            )).getJsonMessage())
+              .asJsonAsync(new Callback<JsonNode>() {
+
+              public void failed(UnirestException e) {
+                  System.out.println("The request has failed");
+              }
+
+              public void completed(HttpResponse<JsonNode> response) {
+                   int code = response.getStatus();
+                   Headers headers = response.getHeaders();
+                   JsonNode body = response.getBody();
+                   InputStream rawBody = response.getRawBody();
+              }
+
+              public void cancelled() {
+                  System.out.println("The request has been cancelled");
+              }
+
+          });
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    HttpResponse<String> response = Unirest.post(String.format("http://%s:%d/", ip, port))
+//                            .header("content-type", "application/json")
+//                            .body((new WebServiceMessage(
+//                                    message,
+//                                    Constants.IP_ADDRESS,
+//                                    Constants.PORT
+//                            )).getJsonMessage())
+//                            .asString();
+//                } catch (UnirestException ex) {
+//                    Logger.getLogger(WebService.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+//        }).start();
     }
 
     public void start() {

@@ -4,6 +4,8 @@ import p2p_filesharing_layered.Constants;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UDP extends Thread {
 
@@ -37,10 +39,13 @@ public class UDP extends Thread {
                 } else {
                     System.out.println("Packet received, but no data!");
                 }
-
+                //Thread.sleep(1000);
             } catch (IOException ex) {
                 ex.printStackTrace();
-            }
+            } 
+//            catch (InterruptedException ex) {
+//                Logger.getLogger(UDP.class.getName()).log(Level.SEVERE, null, ex);
+//            }
         }
     }
 
@@ -48,7 +53,7 @@ public class UDP extends Thread {
 
         if (Constants.UDP_MODE==2 && !message.contains("REG") && !message.contains("UNROK")) {
             webService.sendPacket(message, ip, port);
-            System.out.println("web S send"+message);
+            System.out.println("web S send"+message + " : "+ip+" , "+port);
             return;
         }
 

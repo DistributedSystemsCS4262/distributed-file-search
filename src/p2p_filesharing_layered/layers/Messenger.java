@@ -64,4 +64,12 @@ public class Messenger {
     public void sendMessage(RequestMessage requestMessage) {
         this.messageParser.sendMessage(requestMessage);
     }
+    
+    public void getDiscSent(){
+        controller.addDiscSent();
+    }
+    
+    public void getDiscReci(){
+        controller.addDiscReci();;
+    }
 }

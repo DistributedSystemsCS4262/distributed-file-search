@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentMap;
 import p2p_filesharing_layered.Constants;
 import p2p_filesharing_layered.interfaces.MainUI;
 
-public class Controller extends Thread {
+public class Controller{
 
     private Messenger messenger;
     private FileSystem fileSystem;
@@ -17,12 +17,21 @@ public class Controller extends Thread {
     private ConcurrentMap<Integer, Set<Neighbour>> succesors;
     private MainUI userInterface;
     private HeartbeatHandler hbHandler;
-
+    private String statCSV;
+    private int serCount;
+    private int serOkCount ;
+    private int discMsgSent = 0;
+    private int discMsgReci = 0;
+    
     public Controller(Messenger messenger) {
         this.messenger = messenger;
+        this.statCSV ="\n";
+        this.serCount =0;
+        this.serOkCount = 0;
         this.fileSystem = new FileSystem();
         neighbours = new HashSet<>();
         this.succesors = new ConcurrentHashMap<Integer, Set<Neighbour>>();
+        //this.hopMap = new ConcurrentHashMap<Long, Integer>();
         userInterface=new MainUI(this);
         hbHandler = new HeartbeatHandler(this.messenger, this);
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -60,60 +69,60 @@ public class Controller extends Thread {
         messenger.sendMessage(requestMessage);
     }
 
-    @Override
-    public void run() {
-        Scanner scanner = new Scanner(System.in);
-
-        while (true) {
-            
-            
-            
-            synchronized (System.out) {
-                System.out.println("Enter command");
-                System.out.println("r : Register with bootstrap server");
-                System.out.println("u : Unregister from bootstrap server");
-                // System.out.println("j : joinWithNeighbours ");
-                System.out.println("l : leave distributed system");
-                System.out.println("s : initiateSearch file");
-                System.out.println("p : print neighbours");
-                System.out.println("f : print files");
-                for(String file:fileSystem.getAllFiles()){
-                  System.out.println(file);
-                }
-            }
-
-            String in = scanner.nextLine().toLowerCase();
-
-            if (in.equals("r")) {
-                register();
-            } else if (in.equals("u")) {
-                unregister();
-            } else if (in.equals("j")) {
-
-            } else if (in.equals("l")) {
-                leave();
-            } else if (in.equals("s")) {
-//                SearchFile ser = new SearchFile(node,datagramSocket);
-                System.out.println("Enter file name:");
-                initiateSearch(scanner.nextLine());
-//                    ser.initiateSearchMsg(String.valueOf(System.currentTimeMillis()), s.getIp(), s.getPort(), filename);
-            } else if (in.equals("p")) {
-                printNeighbours();
-            } else if (in.equals("f")) {
-                printFiles();
-            } else if (in.equals("e")) {
-                //print neighbours
-//                System.exit(0);
-            } else {
-
-            }
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-//                e.printStackTrace();
-            }
-        }
-    }
+//    @Override
+//    public void run() {
+//        Scanner scanner = new Scanner(System.in);
+//
+//        while (true) {
+//            
+//            
+//            
+//            synchronized (System.out) {
+//                System.out.println("Enter command");
+//                System.out.println("r : Register with bootstrap server");
+//                System.out.println("u : Unregister from bootstrap server");
+//                // System.out.println("j : joinWithNeighbours ");
+//                System.out.println("l : leave distributed system");
+//                System.out.println("s : initiateSearch file");
+//                System.out.println("p : print neighbours");
+//                System.out.println("f : print files");
+//                for(String file:fileSystem.getAllFiles()){
+//                  System.out.println(file);
+//                }
+//            }
+//
+//            String in = scanner.nextLine().toLowerCase();
+//
+//            if (in.equals("r")) {
+//                register();
+//            } else if (in.equals("u")) {
+//                unregister();
+//            } else if (in.equals("j")) {
+//
+//            } else if (in.equals("l")) {
+//                leave();
+//            } else if (in.equals("s")) {
+////                SearchFile ser = new SearchFile(node,datagramSocket);
+//                System.out.println("Enter file name:");
+//                initiateSearch(scanner.nextLine());
+////                    ser.initiateSearchMsg(String.valueOf(System.currentTimeMillis()), s.getIp(), s.getPort(), filename);
+//            } else if (in.equals("p")) {
+//                printNeighbours();
+//            } else if (in.equals("f")) {
+//                printFiles();
+//            } else if (in.equals("e")) {
+//                //print neighbours
+////                System.exit(0);
+//            } else {
+//
+//            }
+//            try {
+//                Thread.sleep(3000);
+//            } catch (InterruptedException e) {
+////                e.printStackTrace();
+//            }
+//        }
+//    }
 
     public String printFiles() {
         String output="\nLIST OF FILES\n";
@@ -132,8 +141,9 @@ public class Controller extends Thread {
             return;
         }
         fileName = "\"" + fileName + "\"";
+        long msgTime = System.currentTimeMillis();
         for (Neighbour neighbour : neighbours) {
-            messenger.sendMessage(new DiscoverMessage("DISC", neighbour.getIp(), neighbour.getPort(), fileName, String.valueOf(System.currentTimeMillis()),1));
+            messenger.sendMessage(new DiscoverMessage("DISC", neighbour.getIp(), neighbour.getPort(), fileName, String.valueOf(msgTime),1));
         }
     }
 
@@ -216,14 +226,43 @@ public class Controller extends Thread {
     }
 
     public void handleDiscoverAckRequest(DiscoverMessage d) {
+        
+        
+//        if(hopMap.containsKey(timeStamp)){
+//            if(hopCount>hopMap.get(timeStamp)){
+//                hopMap.replace(timeStamp, hopCount);
+//            }
+//        }else{
+//            hopMap.put(timeStamp, hopCount);
+//        }
+       // System.out.println(output);
         messenger.sendMessage(new SearchMessage("SER", d.getIp(), d.getPort(), d.getFileName(), 0));
+        serCount++;
+        int hopCount = d.getHopCount();
+        //long timeStamp = Long.parseLong(d.getTimeStamp());
+        String timeStamp = d.getTimeStamp();
+        String output=timeStamp+" , "+(System.currentTimeMillis()-Long.parseLong(timeStamp))+" , "+hopCount+"\n";
+        statCSV+=output;
+        //userInterface.updateInterface(output);
     }
 
+    public void handleDiscCount(int discSent, int discRecieved){
+        String output="Disc Msg Sent:"+discSent+" , Disc Msg Recieved"+discRecieved;
+        userInterface.updateInterface(output);
+    }
+    
+    public String handleGetStat(){
+        //userInterface.updateInterface(statCSV);
+        String output =statCSV +"\n Search OK: "+serOkCount+"\n Search: "+serCount+"\n Discovery msgs sent: "+this.discMsgSent+"\n Discovery msgs recieved: "+this.discMsgReci+"\n";
+        //userInterface.updateInterface(output);
+        return output;
+    }
     public void handleSearchOk(ReceiveResponseMessage receiveResponseMessage){
         
         //if no of hits>0
         String output="";
-        System.out.println("get value"+receiveResponseMessage.getValue());
+        serOkCount++;
+        //System.out.println("get value"+receiveResponseMessage.getValue());
         if(Integer.parseInt(receiveResponseMessage.getValue())>0){
              output="\nSearch Result :";
             //StringTokenizer token= new StringTokenizer(receiveResponseMessage.getDescription(),"|");
@@ -232,11 +271,12 @@ public class Controller extends Thread {
             output+="\n"+receiveResponseMessage.getDescription()+"\n";
         
         }
+        //output += "\n Search OK: "+serOkCount+"\n Search: "+serCount; 
         
         //else
         //output+="FIlE NOT FOUND";
         //for 9999 and 9998
-    userInterface.updateInterface(output);
+        userInterface.updateInterface(output);
     
     }
     
@@ -367,5 +407,11 @@ public class Controller extends Thread {
         hbHandler.handleIsAliveResponse(response);
     }
     
+    public void addDiscSent(){
+        this.discMsgSent++;
+    }
     
+    public void addDiscReci(){
+        this.discMsgReci++;
+    }
 }

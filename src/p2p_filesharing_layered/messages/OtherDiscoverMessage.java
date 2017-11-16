@@ -10,6 +10,7 @@ public class OtherDiscoverMessage  extends RequestMessage {
     private String timeStamp;
     private String packetMessageData;
     private int hopCount;
+    static int msgId;
 
     public OtherDiscoverMessage(String receivedData) {
         this.packetMessageData = receivedData;
@@ -23,13 +24,16 @@ public class OtherDiscoverMessage  extends RequestMessage {
         setPort(Integer.parseInt(token.nextToken()));
         this.timeStamp = token.nextToken();
         this.hopCount = Integer.parseInt(token.nextToken()) + 1;
+        this.packetMessageData = formatString(this.packetMessageData)+" "+this.hopCount;
     }
 
     public OtherDiscoverMessage(OtherDiscoverMessage o, String ip, int port){
         super(o.getAction(),ip,port);
-        this.fileName = o.fileName;
-        this.timeStamp = o.timeStamp;
-        this.packetMessageData = o.packetMessageData;
+        this.fileName = o.getFileName();
+        this.timeStamp = o.getTimeStamp();
+        this.packetMessageData = o.getPacketMessageData();
+        this.hopCount = o.getHopCount()+1;
+        this.packetMessageData = formatString(this.packetMessageData)+" "+this.hopCount;
     }
 
     @Override
@@ -67,5 +71,15 @@ public class OtherDiscoverMessage  extends RequestMessage {
     
     public void setHopCount(int hopCount){
         this.hopCount = hopCount;
+    }
+    
+    public String formatString(String discMsg){
+        String formattedMsg="";
+        String msg[]=discMsg.split(" ");
+        for(int i=0;i<msg.length-1;i++){
+            formattedMsg += msg[i]+" ";
+        }
+        formattedMsg = formattedMsg.trim();
+        return formattedMsg;
     }
 }

@@ -12,8 +12,11 @@ public class MessageParser {
     private Messenger messenger;
     private UDP node;
     private HashSet<String> requests;
+    private int inMsg =0;
+    private int outMsg =0;
+    private int discMsgSent = 0;
+    private int discMsgReci = 0;
     
-
     public MessageParser(UDP node) {
         this.node = node;
         messenger = new Messenger(this);
@@ -31,6 +34,9 @@ public class MessageParser {
         StringTokenizer token = new StringTokenizer(message);
         String lenght = token.nextToken();
         String command = token.nextToken();
+        System.out.println(command);
+        //inMsg++;
+        //System.out.println("Message count - In: "+inMsg);
 //        SearchFile ser = new SearchFile(this.node,this.socket);
         switch (command) {
             case "REGOK":
@@ -59,7 +65,15 @@ public class MessageParser {
                 break;
             case "DISC":
                 String messageCopy = message.trim();
-                messageCopy.replaceAll(" [^ ]+$", "");
+                String msg[]=messageCopy.split(" ");
+                messageCopy ="";
+                for(int i=0;i<msg.length-1;i++){
+                    messageCopy += msg[i]+" ";
+                }
+                messageCopy = messageCopy.trim();
+                //discMsgReci++;
+                //System.out.println("Discovery messages received: "+discMsgReci);
+                messenger.getDiscReci();
                 if (requests.isEmpty() || !requests.contains(messageCopy)) {
                     requests.add(messageCopy);
                     OtherDiscoverMessage otherDiscoverMessage = new OtherDiscoverMessage(message);
@@ -120,6 +134,8 @@ public class MessageParser {
         String lenght = token.nextToken();
         String command = token.nextToken();
 //        SearchFile ser = new SearchFile(this.node,this.socket);
+        //inMsg++;
+        //System.out.println("Message count - In: "+inMsg);
         switch (command) {
             case "REGOK":
                 RegisterOkMessage registerOkMessage = new RegisterOkMessage(token);
@@ -146,8 +162,18 @@ public class MessageParser {
                 messenger.receiveMessage(leaveReceiveResponseMessage);
                 break;
             case "DISC":
-                if (requests.isEmpty() || !requests.contains(data)) {
-                    requests.add(data);
+                String messageCopy = data.trim();
+                String msg[]=messageCopy.split(" ");
+                messageCopy ="";
+                for(int i=0;i<msg.length-1;i++){
+                    messageCopy += msg[i]+" ";
+                }
+                messageCopy = messageCopy.trim();
+                //discMsgReci++;
+                //System.out.println("Discovery messages received: "+discMsgReci);
+                messenger.getDiscReci();
+                if (requests.isEmpty() || !requests.contains(messageCopy)) {
+                    requests.add(messageCopy);
                     OtherDiscoverMessage otherDiscoverMessage = new OtherDiscoverMessage(data);
                     messenger.receiveMessage(otherDiscoverMessage);
                 }
@@ -198,8 +224,22 @@ public class MessageParser {
     }
 
     public void sendMessage(RequestMessage requestMessage) {
-        
+        //outMsg++;
+        //System.out.println("Message count - Out: "+outMsg);
+        if(requestMessage.getAction().equals("DISC")){
+            //discMsgSent++;
+            messenger.getDiscSent();
+            //System.out.println("Discovery Messages Sent: "+discMsgSent);
+        }
         node.send(requestMessage.packetMessage(), requestMessage.getIp(), requestMessage.getPort());
         
+    }
+    
+    public int getDiscSent(){
+        return discMsgSent;
+    }
+    
+    public int getDiscReci(){
+        return discMsgReci;
     }
 }

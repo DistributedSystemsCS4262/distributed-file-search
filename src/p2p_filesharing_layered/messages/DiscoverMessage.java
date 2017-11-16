@@ -9,7 +9,7 @@ import java.util.StringTokenizer;
 
 public class DiscoverMessage extends RequestMessage {
     private String fileName;
-    private String timeStamp;
+    private String timeStamp; 
     private int hopCount;
 
     public DiscoverMessage(String receivedData){
@@ -21,6 +21,8 @@ public class DiscoverMessage extends RequestMessage {
         token = new StringTokenizer(token2.nextToken());
         setIp(token.nextToken());
         setPort(Integer.parseInt(token.nextToken()));
+        this.timeStamp = token.nextToken();
+        this.hopCount = Integer.parseInt(token.nextToken());
     }
 
     public DiscoverMessage(String action, String ip, int port, String fileName, String timeStamp,int hopCount) {
@@ -46,6 +48,14 @@ public class DiscoverMessage extends RequestMessage {
         this.timeStamp = timeStamp;
     }
 
+    public void setHopCount(int hopCount){
+        this.hopCount = hopCount;
+    }
+    
+    public int getHopCount(){
+        return hopCount;
+    }
+    
     @Override
     public String packetMessage() {
         String join_msg = getAction() + " \"" + fileName + "\" " + Constants.IP_ADDRESS + " " + Constants.PORT + " " + this.timeStamp+ " "+this.hopCount;
