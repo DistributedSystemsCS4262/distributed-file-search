@@ -6,6 +6,8 @@ import p2p_filesharing_layered.messages.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import p2p_filesharing_layered.Constants;
 import p2p_filesharing_layered.interfaces.MainUI;
 
@@ -20,8 +22,10 @@ public class Controller{
     private String statCSV;
     private int serCount;
     private int serOkCount ;
+    private int serRun;
     private int discMsgSent = 0;
     private int discMsgReci = 0;
+    private ArrayList<String> queries = new ArrayList<String>(Arrays.asList("Twilight","Jack","American Idol","Happy Feet","Twilight saga","Happy Feet","Happy Feet","Feet","Happy Feet","Twilight","Windows","Happy Feet","Mission Impossible","Twilight","Windows 8","The","Happy","Windows 8","Happy Feet","Super Mario","Jack and Jill","Happy Feet","Impossible","Happy Feet","Turn Up The Music","Adventures of Tintin","Twilight saga","Happy Feet","Super Mario","American Pickers","Microsoft Office 2010","Twilight","Modern Family","Jack and Jill","Jill","Glee","The Vampire Diarie","King Arthur","Jack and Jill","King Arthur","Windows XP","Harry Potter","Feet","Kung Fu Panda","Lady Gaga","Gaga","Happy Feet","Twilight","Hacking","King"));
     
     public Controller(Messenger messenger) {
         this.messenger = messenger;
@@ -147,6 +151,28 @@ public class Controller{
         }
     }
 
+    public void handleSearchQuery(){
+        
+        
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    int i=0;
+                    for(String query:queries){
+                        try {
+                            initiateSearch(query);
+                            i++;
+                            userInterface.updateInterface("Search query running: "+query+" with query number: "+i);
+                            Thread.sleep(5000);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                     }
+                }
+            }
+            );         
+            t.start();
+    }
     public String printNeighbours() {
         
         String output="";
@@ -253,7 +279,7 @@ public class Controller{
     
     public String handleGetStat(){
         //userInterface.updateInterface(statCSV);
-        String output =statCSV +"\n Search OK: "+serOkCount+"\n Search: "+serCount+"\n Discovery msgs sent: "+this.discMsgSent+"\n Discovery msgs recieved: "+this.discMsgReci+"\n";
+        String output =statCSV +"\n Search OK received: "+serOkCount+"\n Search Sent: "+serCount+"\n Discovery msgs sent: "+this.discMsgSent+"\n Discovery msgs recieved: "+this.discMsgReci+"\n Searches run on: "+this.serRun+"\n";
         //userInterface.updateInterface(output);
         return output;
     }
@@ -283,7 +309,7 @@ public class Controller{
     public void handleSearchRequest(SearchMessage searchMessage) {
         StringTokenizer token = new StringTokenizer(searchMessage.getFileName());
         String word = token.nextToken();
-
+        serRun++;
         List<String> result = fileSystem.searchFiles(word);
 
         if (result != null) {
